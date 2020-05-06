@@ -4,7 +4,7 @@ import numpy as np
 
 
 def read_data(date=None, use_daily=False):
-    data_path = 'CSSECOVID19_DATA\\'
+    data_path = 'COVID-19\\'
 
     jhu_csse_ts_dir_path = data_path + 'csse_covid_19_data\\csse_covid_19_time_series\\'
     jhu_csse_ts_confirmed_name = 'time_series_covid19_confirmed_global.csv'
