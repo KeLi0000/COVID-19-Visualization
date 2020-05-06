@@ -13,7 +13,6 @@ def read_data(date=None, use_daily=False):
 
     jhu_csse_daily_data_dir_path = data_path + 'csse_covid_19_data\\csse_covid_19_daily_reports\\'
 
-    world_data_pd = None
     if use_daily:
         file_name = date.strftime('%m-%d-%Y') + '.csv'
         jhu_csse_confirmed_today_data_pd = pd.read_csv(jhu_csse_daily_data_dir_path + file_name)
@@ -56,10 +55,13 @@ def read_data(date=None, use_daily=False):
                 'Confirmed': confirmed,
                 'Deaths': deaths,
                 'Recovered': recovered,
-                'Active': active if 'Active' in pd_columns_list else None
+                'Active': active if 'Active' in pd_columns_list else None,
+                'Death Rate': deaths / confirmed,
+                'Recovered Rate': recovered / confirmed,
             }
-
             world_data_pd = world_data_pd.append([tmp_data], ignore_index=True)
+
+        return world_data_pd
     else:
         jhu_csse_confirmed_ts_data_pd = pd.read_csv(jhu_csse_ts_dir_path + jhu_csse_ts_confirmed_name)
         jhu_csse_deths_ts_data_pd = pd.read_csv(jhu_csse_ts_dir_path + jhu_csse_ts_deaths_name)
@@ -80,6 +82,7 @@ def read_data(date=None, use_daily=False):
         world_recovered_data_pd = pd.DataFrame(columns=jhu_csse_recovered_ts_data_pd.columns)
 
         countries = jhu_csse_confirmed_ts_data_pd['Country/Region'].drop_duplicates()
+
         for country in countries:
             confirmed_data = jhu_csse_confirmed_ts_data_pd[(jhu_csse_confirmed_ts_data_pd['Country/Region'] == country)]
             deaths_data = jhu_csse_deths_ts_data_pd[(jhu_csse_deths_ts_data_pd['Country/Region'] == country)]
@@ -116,9 +119,7 @@ def read_data(date=None, use_daily=False):
             world_confirmed_data_pd = world_confirmed_data_pd.append([tmp_data0], ignore_index=True)
             world_deaths_data_pd = world_deaths_data_pd.append([tmp_data1], ignore_index=True)
             world_recovered_data_pd = world_recovered_data_pd.append([tmp_data2], ignore_index=True)
-    if use_daily:
-        return world_data_pd
-    else:
+
         return world_confirmed_data_pd, world_deaths_data_pd, world_recovered_data_pd
 
 

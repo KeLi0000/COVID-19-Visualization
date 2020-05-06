@@ -1,8 +1,19 @@
+import datetime
 import matplotlib.pyplot as plt
 import numpy as np
 from Read_Data import read_data, calc_climb_rate
 
 
+markers = ['.', ',', 'o', 'v', '^',
+           '<', '>', '1', '2', '3',
+           '4', 's', 'p', '*', 'h',
+           'H', '+', 'x', 'D', 'd',
+           '|', '_']
+line_styles = ['-', '--', '-.', ':',
+               '-', '--', '-.', ':',
+               '-', '--', '-.', ':',
+               '-', '--', '-.', ':',
+               '-', '--', '-.', ':']
 colors = ['#b00758', '#c80d44', '#de0c2f', '#d31014', '#da2713', '#e53422',
           '#e84b14', '#db3f0e', '#e8450e', '#e05325', '#da5c21', '#d56830',
           '#f3790c', '#ed8222', '#ee980f', '#f3a328', '#db942c', '#deb92d',
@@ -42,7 +53,7 @@ def plot_rose_0(data=None):
     # fig.savefig('COVID.png')
 
 
-def plot_rose_1(data=None, date=None):
+def plot_rose_1(data=None, date=None, save=True):
 
     # 数据计算
     # radius为要绘制的扇形半径，即plt.bar()的参数height
@@ -128,10 +139,11 @@ def plot_rose_1(data=None, date=None):
     plt.axis('off')
     # 当画布尺寸较大时，可关闭显示图形，直接输出png图片，否则无响应
     # plt.show()
-    plt.savefig(date.strftime('%Y-%m-%d_') + 'COVID-19.png', transparent=True)
+    if save:
+        plt.savefig(date.strftime('%Y-%m-%d_') + 'COVID-19.svg', transparent=True)
 
 
-def plot_climb_rate(data0, data1=None, data2=None):
+def plot_climb_rate(data0, data1=None, data2=None, save=True):
     plot_marker = ['v', 'o', '3', '+', 'D',
                    'p', 'x', '|', ',', '.']
     plot_color = colors[0: 30: 3]
@@ -174,14 +186,16 @@ def plot_climb_rate(data0, data1=None, data2=None):
         plt.plot(climb_rates, marker=plot_marker[i], color=plot_color[i], label=country_name, linewidth=1)
     plt.grid(axis='y', ls='--')
     plt.legend()
+    if save:
+        plt.savefig('COVID-19_Climb_Rate.svg', transparent=True)
 
 
-def plot_country_data(confirmed_data, deaths_data, recovered_data, country='US'):
+def plot_country_data(confirmed_data, deaths_data, recovered_data, country='US', save=True):
     data0 = confirmed_data[(confirmed_data['Country/Region'] == country)].values.tolist()[0]
     data1 = deaths_data[(deaths_data['Country/Region'] == country)].values.tolist()[0]
     data2 = recovered_data[(recovered_data['Country/Region'] == country)].values.tolist()[0]
 
-    plt.figure(figsize=(9, 8))
+    plt.figure(figsize=(10, 5))
     plt.title('某国疫情发展折线图')
     plt.plot(data0[1::7], marker='x', color='red', label=country + ' confirmed', linewidth=1)
     plt.plot(data1[1::7], marker='o', color='blue', label=country + ' death', linewidth=1)
@@ -190,9 +204,11 @@ def plot_country_data(confirmed_data, deaths_data, recovered_data, country='US')
 
     plt.grid(axis='y', ls='--')
     plt.legend()
+    if save:
+        plt.savefig(country + '_COVID-19_Visual.svg', transparent=True)
 
 
-def plot_country_data_candlestick(confirmed_data, deaths_data, recovered_data, country='US'):
+def plot_country_data_candlestick(confirmed_data, deaths_data, recovered_data, country='US', save=True):
     data0 = confirmed_data[(confirmed_data['Country/Region'] == country)].values.tolist()[0]
     data1 = deaths_data[(deaths_data['Country/Region'] == country)].values.tolist()[0]
     data2 = recovered_data[(recovered_data['Country/Region'] == country)].values.tolist()[0]
@@ -212,7 +228,7 @@ def plot_country_data_candlestick(confirmed_data, deaths_data, recovered_data, c
 
     x = range(len(data0[0::7]))
 
-    plt.figure(figsize=(9, 8))
+    plt.figure(figsize=(10, 5))
     plt.title('某国疫情发展烛形图')
     plt.xticks(x, confirmed_data.columns.values.tolist()[1::7])
     plt.plot(tmp_delta_confirmed_data[0::7], marker='*', color='red', label=country + ' new confirmed', linewidth=1)
@@ -225,14 +241,46 @@ def plot_country_data_candlestick(confirmed_data, deaths_data, recovered_data, c
 
     plt.grid(axis='y', ls='--')
     plt.legend()
+    if save:
+        plt.savefig(country + '_COVID-19_CandleStick.svg', transparent=True)
+
+
+def plot_death_recovered_rate(data, date=None, save=True):
+    plot_data = data.head(10)
+    del plot_data['Confirmed']
+    del plot_data['Deaths']
+    del plot_data['Recovered']
+    del plot_data['Active']
+    country_names = []
+    death_rates = []
+    recovered_rates = []
+    for idx, row in plot_data.iterrows():
+        country_names.append(row['Country_Region'])
+        death_rates.append(row['Death Rate'])
+        recovered_rates.append(row['Recovered Rate'])
+
+    fig = plt.figure(figsize=(5, 5))
+    for idx in range(len(country_names)):
+        plt.scatter(death_rates[idx], recovered_rates[idx],
+                    s=death_rates[idx] * 500, color=colors[idx * 2], label=country_names[idx])
+    plt.xlabel('Death rate')
+    plt.ylabel('Recovered rate')
+    x = np.linspace(0, 1, 100)
+    y = np.linspace(0, 1, 100)
+    plt.plot(x, y, linewidth=1, linestyle='--', alpha=0.5)
+    plt.legend()
+
+    if save:
+        plt.savefig(date.strftime("%Y-%m-%d_") + 'COVID-19_Death_Recovered.svg', transparent=True)
 
 
 if __name__ == '__main__':
     # for i in range(4):
     #     data_date = datetime.date(2020, i + 1, 25)
-    #     world_data_pd = read_data(date=data_date, use_daily=True)
-    #     sorted_world_data_pd = world_data_pd.sort_values(by='Confirmed', ascending=False)
-    #     plot_rose_1(sorted_world_data_pd, date=data_date)
+    #     world_daily_data_pd = read_data(date=data_date, use_daily=True)
+    #     sorted_world_daily_data_pd = world_daily_data_pd.sort_values(by='Confirmed', ascending=False)
+    #     plot_rose_1(sorted_world_daily_data_pd, date=data_date)
+    #     plot_death_recovered_rate(sorted_world_daily_data_pd, date=data_date)
 
     world_ts_confirmed_data_pd, world_ts_deaths_data_pd, world_ts_recovered_data_pd = read_data(use_daily=False)
     world_sorted_ts_confirmed_data_pd = \
@@ -249,18 +297,36 @@ if __name__ == '__main__':
     plot_climb_rate(
         world_sorted_week_confirmed_climb_rate_pd,
         world_sorted_week_deaths_climb_rate_pd,
-        world_sorted_week_recovered_climb_rate_pd
+        world_sorted_week_recovered_climb_rate_pd,
+        save=True
     )
     plot_country_data(
         world_sorted_ts_confirmed_data_pd,
         world_sorted_ts_deaths_data_pd,
-        world_sorted_ts_recovered_data_pd
+        world_sorted_ts_recovered_data_pd,
+        country='US',
+        save=True
     )
     plot_country_data_candlestick(
         world_sorted_ts_confirmed_data_pd,
         world_sorted_ts_deaths_data_pd,
-        world_sorted_ts_recovered_data_pd
+        world_sorted_ts_recovered_data_pd,
+        country='US',
+        save=True
+    )
+    plot_country_data(
+        world_sorted_ts_confirmed_data_pd,
+        world_sorted_ts_deaths_data_pd,
+        world_sorted_ts_recovered_data_pd,
+        country='China',
+        save=True
+    )
+    plot_country_data_candlestick(
+        world_sorted_ts_confirmed_data_pd,
+        world_sorted_ts_deaths_data_pd,
+        world_sorted_ts_recovered_data_pd,
+        country='China',
+        save=True
     )
 
-    plt.show()
-
+    # plt.show()
