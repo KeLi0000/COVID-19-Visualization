@@ -215,18 +215,17 @@ def plot_country_data_candlestick(confirmed_data, deaths_data, recovered_data, c
 
     tmp_last_confirmed_data = np.array([0] + data0[1::])
     tmp_today_confirmed_data = np.array(data0[1::] + [0])
-    tmp_delta_confirmed_data = tmp_today_confirmed_data - tmp_last_confirmed_data
-    # tmp_confirmed_data = np.array(data0[1::])
+    tmp_delta_confirmed_data = np.array(tmp_today_confirmed_data[0: -1] - tmp_last_confirmed_data[0: -1])
 
     tmp_last_death_data = np.array([0] + data1[1::])
     tmp_today_death_data = np.array(data1[1::] + [0])
-    tmp_delta_death_data = tmp_today_death_data - tmp_last_death_data
+    tmp_delta_death_data = np.array(tmp_today_death_data[0: -1] - tmp_last_death_data[0: -1])
 
     tmp_last_recovered_data = np.array([0] + data2[1::])
     tmp_today_recovered_data = np.array(data2[1::] + [0])
-    tmp_delta_recovered_data = tmp_today_recovered_data - tmp_last_recovered_data
+    tmp_delta_recovered_data = np.array(tmp_today_recovered_data[0: -1] - tmp_last_recovered_data[0: -1])
 
-    x = range(len(data0[0::7]))
+    x = range(len(tmp_delta_confirmed_data[0::7]))
 
     plt.figure(figsize=(10, 5))
     plt.title('某国疫情发展烛形图')
@@ -275,8 +274,9 @@ def plot_death_recovered_rate(data, date=None, save=True):
 
 
 if __name__ == '__main__':
-    # for i in range(4):
-    #     data_date = datetime.date(2020, i + 1, 25)
+    # start_date = datetime.date(2020, 5, 5)
+    # for i in range(1):
+    #     data_date = start_date + datetime.timedelta(days=14*i)
     #     world_daily_data_pd = read_data(date=data_date, use_daily=True)
     #     sorted_world_daily_data_pd = world_daily_data_pd.sort_values(by='Confirmed', ascending=False)
     #     plot_rose_1(sorted_world_daily_data_pd, date=data_date)

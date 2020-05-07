@@ -56,8 +56,8 @@ def read_data(date=None, use_daily=False):
                 'Deaths': deaths,
                 'Recovered': recovered,
                 'Active': active if 'Active' in pd_columns_list else None,
-                'Death Rate': deaths / confirmed,
-                'Recovered Rate': recovered / confirmed,
+                'Death Rate': deaths / (confirmed if confirmed is not .0 else .1),
+                'Recovered Rate': recovered / (confirmed if confirmed is not .0 else .1),
             }
             world_data_pd = world_data_pd.append([tmp_data], ignore_index=True)
 
